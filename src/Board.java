@@ -1,3 +1,5 @@
+import java.util.Arrays;
+
 public class Board {
     public static int SIZE = 10;
     private Piece[][] board = new Piece[SIZE][SIZE];
@@ -11,5 +13,26 @@ public class Board {
                 board[height + 2 + i][j] = new Piece(Colors.BLACK);
             }
         }
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+
+        for (int i = 0; i < SIZE; i++) {
+            for (int j = 0; j < SIZE; j++) {
+                if (board[i][j] == null) {
+                    builder.append(' ');
+                } else if (board[i][j].getColor() == Colors.BLACK) {
+                    builder.append('b');
+                } else {
+                    builder.append('w');
+                }
+            }
+
+            builder.append("\n");
+        }
+
+        return builder.toString();
     }
 }
