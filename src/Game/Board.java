@@ -1,4 +1,4 @@
-import java.util.Arrays;
+package Game;
 
 public class Board {
     public static int SIZE = 10;
@@ -13,6 +13,10 @@ public class Board {
                 board[height + 2 + i][j] = new Piece(Colors.BLACK);
             }
         }
+    }
+
+    public Piece[][] getPieces() {
+        return board;
     }
 
     @Override

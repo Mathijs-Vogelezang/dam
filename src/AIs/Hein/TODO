@@ -1,0 +1,23 @@
+Implement minimax [DONE]
+Use alpha-beta pruning
+Implement iterative deepening
+Order iterative deepening by pruned branches
+Remove duplicate board states
+Implement multithreading
+
+MISC
+Convert Piece Board to byte Board [DONE]
+Generate children nodes [DONE]
+Add differentiation between black and white in most methods
+Generate possible moves from node
+Remember multiple best options (and randomly select one)
+Forced wins (similar to forced mate in a number of moves)
+
+Possible optimisations:
+Keep track of more data and give it to child nodes (such as forced moves) instead of recalculating
+Similarly keep a list of pieces on the board instead of finding them everytime
+
+Edge cases to consider/test:
+No moves possible
+No pieces on the board
+Win all pieces in one move

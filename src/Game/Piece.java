@@ -1,4 +1,4 @@
-import java.awt.*;
+package Game;
 
 public class Piece {
     private Colors color;
@@ -10,5 +10,13 @@ public class Piece {
 
     public Colors getColor() {
         return color;
+    }
+
+    public boolean isKing() {
+        return isKing;
+    }
+
+    public void isKing(boolean isKing) {
+        this.isKing = isKing;
     }
 }
