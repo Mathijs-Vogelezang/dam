@@ -16,6 +16,8 @@ import java.util.ArrayList;
  * x = 0 on the left of a board, and y=0 at the top.
  * For now white tiles are always considered starting on the bottom of the board, and black tiles on the top.
  * TODO: add more perspectives
+ * TODO: change to fit checkers standards better (e.g. (x,y)==(0,0) at bottom left)
+ * TODO: change byte piece representation (make white (1,2) instead of black, or use enum)
  */
 public class MiniMax {
 
@@ -36,7 +38,7 @@ public class MiniMax {
         return miniMax(origin, depth, true).value;
     }
 
-    protected Node miniMax(byte[][] node, byte depth, boolean max) {
+    public Node miniMax(byte[][] node, byte depth, boolean max) {
         if (depth == 0) {
             Node endNode = new Node();
             endNode.value = evaluate(node);
@@ -73,7 +75,45 @@ public class MiniMax {
         return newNode;
     }
 
-    protected static byte[][][] generateChildren(byte[][] node) {
+    public NodeNode miniMax(byte[] node, byte depth, boolean max) {
+        if (depth == 0) {
+            NodeNode endNode = new NodeNode();
+            endNode.value = evaluate(node);
+            endNode.board = node;
+            return endNode;
+        }
+
+        byte[][] children = generateChildren(node);
+        int value;
+        byte[] select = children[0];
+        int newValue;
+        if (max) { // max player
+            value = Integer.MIN_VALUE;
+            for (byte[] child : children) {
+                newValue = miniMax(child, depth--, false).value;
+                if (newValue > value) {
+                    select = child;
+                    value = newValue;
+                }
+            }
+        } else { // min player
+            value = Integer.MAX_VALUE;
+            for (byte[] child : children) {
+                newValue = miniMax(child, depth--, false).value;
+                if (newValue < value) {
+                    select = child;
+                    value = newValue;
+                }
+            }
+        }
+
+        NodeNode newNode = new NodeNode();
+        newNode.value = value;
+        newNode.board = select;
+        return newNode;
+    }
+
+    public static byte[][][] generateChildren(byte[][] node) {
         ArrayList<byte[][]> children = new ArrayList<>();
         for (byte i = 0; i < node.length; i++) {
             for (byte j = 0; j < node[0].length; j++) {
@@ -85,7 +125,21 @@ public class MiniMax {
         return (byte[][][]) children.toArray();
     }
 
-    protected static ArrayList<byte[][]> addMoves(ArrayList<byte[][]> children, byte[][] board, byte x, byte y) {
+    public static byte[][] generateChildren(byte[] node) {
+        ArrayList<byte[]> children = new ArrayList<>();
+        for (byte i = 0; i < node.length; i++) {
+            if (node[i] > 0) {
+                children = addMoves(children, node, i);
+            }
+        }
+        return (byte[][]) children.toArray();
+    }
+
+    private static ArrayList<byte[]> addMoves(ArrayList<byte[]> children, byte[] node, byte i) {
+        return null; // stub
+    }
+
+    public static ArrayList<byte[][]> addMoves(ArrayList<byte[][]> children, byte[][] board, byte x, byte y) {
         if (hasForcedMove(board)) {
 
         } else {
@@ -97,7 +151,6 @@ public class MiniMax {
         // double hop and further
         // normal moves
         //
-
         // evaluate and store all possible moves with the piece at this position (recursively),
         // then return the list of those moves
         return children; // stub, improve this
@@ -106,8 +159,9 @@ public class MiniMax {
     /**
      * For now white is always considered to be the one to move, and white is considered to start at the bottom
      * TODO: add more perspectives
+     * @deprecated should use byte[] board representation
      */
-    protected static boolean hasForcedMove(byte[][] board) {
+    public static boolean hasForcedMove(byte[][] board) {
         for (byte i = 0; i < board.length; i++) { // index i is the x-axis (left to right)
             for (byte j = 0; j < board[0].length; j++) { // index j is the y-axis (top to bottom)
                 byte piece = board[i][j];
@@ -149,7 +203,54 @@ public class MiniMax {
         return false;
     }
 
-    protected static int evaluate(byte[][] board) {
+    /**
+     * Tells you if the player who is next to move has any forced moves.
+     * Board is considered as an array corresponding to the accessible tiles on the board.
+     * For instance: on a standard board the top left is 0, top right is 4, bottom left is 45, bottom right is 49
+     * TODO: update to work for extended king movement
+     * @param board byte array representation of board
+     * @param whiteMove true if white is next to move
+     * @return (number of forced moves) >= 1
+     */
+    public static boolean hasForcedMove(byte[] board, boolean whiteMove) {
+        byte piece = whiteMove ? (byte) 3 : (byte) 1;
+        byte king = whiteMove ? (byte) 4 : (byte) 2;
+        byte oppPiece = whiteMove ? (byte) 1 : (byte) 3;
+        byte oppKing = whiteMove ? (byte) 2 : (byte) 4;
+        byte b = (byte) Math.sqrt((board.length * 2)); // size of the side of a board
+        byte h = (byte) (b / 2); // half of the size of the side of a board
+        byte c; // correction byte that is 1 on uneven rows
+        byte empty = 0;
+
+        for (byte i = 0; i < board.length; i++) {
+            if (board[i] == piece || board[i] == king) {
+                c = i % b >= h ? (byte) 1 : (byte) 0;
+                if (i-b-1 > 0 && i % h > 0 && (board[i-h-c] == oppPiece || board[i+h-1+c] == oppKing)
+                        && board[i-b-1] == empty) { // up left
+                    return true;
+                }
+                if (i-b+1 > 0 && i % h < h-1 && (board[i-h+1-c] == oppPiece || board[i+h+c] == oppKing)
+                        && board[i-b+1] == empty) { // up right
+                    return true;
+                }
+                if (i+b-1 < board.length-1 && i % h > 0 && (board[i+h-c] == oppPiece || board[i-h-1+c] == oppKing)
+                        && board[i+b-1] == empty) { // down left
+                    return true;
+                }
+                if (i+b+1 < board.length-1 && i % h < h-1 && (board[i+h+1-c] == oppPiece || board[i-4-1+c] == oppKing)
+                        && board[i+b+1] == empty) { // down right
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * @deprecated should use byte[] board representation
+     */
+    public static int evaluate(byte[][] board) {
         int eval = 0;
         for (byte[] row : board) {
             for (byte col : row) {
@@ -167,7 +268,27 @@ public class MiniMax {
         return eval;
     }
 
-    protected static byte[][] pieceToByteBoard(Board board) {
+    public static int evaluate(byte[] board) {
+        int eval = 0;
+        for (byte piece : board) {
+            switch (piece) {
+                case 1:
+                    eval--;
+                    break;
+                case 2:
+                    eval -= 4;
+                    break;
+                case 3:
+                    eval++;
+                    break;
+                case 4:
+                    eval += 4;
+            }
+        }
+        return eval;
+    }
+
+    public static byte[][] pieceToByteBoard(Board board) {
         Piece[][] pieces = board.getPieces();
         byte[][] newBoard = new byte[Board.SIZE/2][Board.SIZE];
         Piece piece;
@@ -196,6 +317,39 @@ public class MiniMax {
         return newBoard;
     }
 
+    public static byte[] parseByteBoard(Board board) {
+        Piece[][] pieces = board.getPieces();
+        byte boardSize = (byte) (pieces.length * pieces.length / 2);
+        byte[] newBoard = new byte[boardSize];
+
+        Piece piece;
+        byte newPiece;
+        byte index;
+        for (byte i = 0; i < pieces.length; i++) { // y-axis of pieces array
+            for (byte j = 0; j < pieces.length/2; j++) { // x-axis of pieces array
+                piece = pieces[i][j*2+(i%2)];
+                index = (byte) (i*pieces.length/2 + j);
+                if (piece == null) {
+                    newPiece = 0;
+                } else if (piece.getColor() == Colors.BLACK) {
+                    if (piece.isKing()) {
+                        newPiece = 2;
+                    } else {
+                        newPiece = 1;
+                    }
+                } else {
+                    if (piece.isKing()) {
+                        newPiece = 4;
+                    } else {
+                        newPiece = 3;
+                    }
+                }
+                newBoard[index] = newPiece;
+            }
+        }
+        return newBoard;
+    }
+
     public static void drawBoard(byte[][] board) {
         for (byte i = 0; i < board[0].length; i++) {
             for (byte[] bytes : board) {
@@ -203,6 +357,53 @@ public class MiniMax {
             }
             System.out.println();
         }
+    }
+
+    public static String boardString(byte[] board) {
+        StringBuilder output = new StringBuilder();
+        byte boardSize = (byte) (Math.sqrt(board.length * 2) / 2);
+        byte check;
+        for (byte i = 0; i < board.length; i++) {
+            check = (byte) (i % (boardSize * 2));
+            if (check == 0) { // start of an even row
+                output.append("|    ");
+            } else if (check == boardSize) { // start of an uneven row
+                output.append("| ");
+            }
+            int piece = board[i];
+            switch (piece) {
+                case 0:
+                    output.append("-");
+                    break;
+                case 1:
+                    output.append("b");
+                    break;
+                case 2:
+                    output.append("B");
+                    break;
+                case 3:
+                    output.append("w");
+                    break;
+                case 4:
+                    output.append("W");
+            }
+            if (check == boardSize-1) { // end of an even row
+                output.append(" |");
+            } else if (check == boardSize * 2 - 1) { // end of an uneven row
+                output.append("    |");
+            } else {
+                output.append("     ");
+            }
+            if (i % boardSize == boardSize - 1) output.append("\n");
+        }
+        return output.toString();
+    }
+
+    public static void main(String[] args) {
+        Board board = new Board();
+        board.generateBoard();
+        System.out.println(board.toString());
+        System.out.println(boardString(parseByteBoard(board)));
     }
 
 }

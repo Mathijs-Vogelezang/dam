@@ -53,7 +53,7 @@ public class Tests {
     }
 
     @Test
-    void hasForcedMoveWhite() { // TODO: add test for king when implemented
+    void hasForcedMoveWhiteDeprecated() { // TODO: add test for king when implemented
         board[0][9] = 3; // White piece in bottom left corner
         assertFalse(MiniMax.hasForcedMove(board));
         board[0][8] = 1; // Black piece diagonally next to white corner piece
@@ -61,6 +61,11 @@ public class Tests {
         board[0][8] = 0;
         board[1][7] = 1; // Black piece out of reach
         assertFalse(MiniMax.hasForcedMove(board));
+    }
+
+    @Test
+    void hasForcedMoveWhite() {
+
     }
 
     @Test
