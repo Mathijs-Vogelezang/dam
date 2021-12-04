@@ -8,7 +8,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class Tests {
 
-    byte[][] board = new byte[5][10];
+    byte[] board = new byte[50];
     static Board board2 = new Board();
     MiniMax AI = new MiniMax();
     MiniMax AI2 = new MiniMax((byte) 2);
@@ -22,9 +22,7 @@ public class Tests {
     void setup() {
         // Create empty board
         for (byte i = 0; i < board.length; i++) {
-            for (byte j = 0; j < board[0].length; j++) {
-                board[i][j] = 0;
-            }
+            board[i] = 0;
         }
     }
 
@@ -53,61 +51,68 @@ public class Tests {
     }
 
     @Test
-    void hasForcedMoveWhiteDeprecated() { // TODO: add test for king when implemented
-        board[0][9] = 3; // White piece in bottom left corner
-        assertFalse(MiniMax.hasForcedMove(board));
-        board[0][8] = 1; // Black piece diagonally next to white corner piece
-        assertTrue(MiniMax.hasForcedMove(board));
-        board[0][8] = 0;
-        board[1][7] = 1; // Black piece out of reach
-        assertFalse(MiniMax.hasForcedMove(board));
-    }
-
-    @Test
-    void hasForcedMoveWhite() {
-
+    void hasForcedMoveWhite() { // TODO: add test for king when implemented
+        board[45] = 3; // White piece in bottom left corner
+        assertFalse(MiniMax.hasForcedMove(board, true));
+        board[40] = 1; // Black piece diagonally next to white corner piece
+        assertTrue(MiniMax.hasForcedMove(board, true)); // White can take black
+        assertFalse(MiniMax.hasForcedMove(board, false)); // Black cannot take white
+        board[40] = 0;
+        board[36] = 1; // Black piece out of reach
+        assertFalse(MiniMax.hasForcedMove(board, true));
     }
 
     @Test
     void evaluate() { // currently disregards position, only considers material values
         assertEquals(MiniMax.evaluate(board), 0);
-        board[0][0] = 3; // add regular white piece
+        board[0] = 3; // add regular white piece
         assertEquals(MiniMax.evaluate(board), 1);
-        board[0][1] = 2; // add black king
+        board[1] = 2; // add black king
         assertEquals(MiniMax.evaluate(board), -3);
-        board[0][1] = 4; // replace black king with white king
+        board[1] = 4; // replace black king with white king
         assertEquals(MiniMax.evaluate(board), 5);
-        board[4][9] = 1; // add regular black piece;
+        board[49] = 1; // add regular black piece;
         assertEquals(MiniMax.evaluate(board), 4);
     }
 
     @Test
-    void pieceToByteBoard() {
-        assertFalse(boardEquals(board, MiniMax.pieceToByteBoard(board2)));
-        for (int i = 0; i < 5; i++) {
-            for (int j = 0; j < 4; j ++) {
-                board[i][j] = 1;
-                board[i][9-j] = 3;
-            }
+    void parseByteBoard() {
+        assertFalse(boardEquals(board, MiniMax.parseByteBoard(board2)));
+        for (int i = 0; i < 20; i++) {
+                board[i] = 3;
+                board[i+30] = 1;
         }
 //        MiniMax.drawBoard(MiniMax.pieceToByteBoard(board2));
-        assertTrue(boardEquals(board, MiniMax.pieceToByteBoard(board2)));
+        assertTrue(boardEquals(board, MiniMax.parseByteBoard(board2)));
     }
 
-    boolean boardEquals(byte[][] board1, byte[][] board2) {
+    boolean boardEquals(byte[] board1, byte[] board2) {
         for (byte i = 0; i < board1.length; i++) {
-            for (byte j = 0; j < board1[0].length; j++) {
-                if (board1[i][j] != board2[i][j]) {
-                    return false;
-                }
+            if (board1[i] != board2[i]) {
+                return false;
             }
         }
         return true;
     }
 
     @Test
-    void drawBoard() {
-        assertDoesNotThrow(() -> MiniMax.drawBoard(board));
+    void boardString() {
+        String checkBoardString = "|    w     w     w     w     w |\n" +
+                "| w     w     w     w     w    |\n" +
+                "|    w     w     w     w     w |\n" +
+                "| w     w     w     w     w    |\n" +
+                "|    -     -     -     -     - |\n" +
+                "| -     -     -     -     -    |\n" +
+                "|    b     b     b     b     b |\n" +
+                "| b     b     b     b     b    |\n" +
+                "|    b     b     b     b     b |\n" +
+                "| b     b     b     b     b    |\n";
+        for (int i = 0; i < 20; i++) {
+            board[i] = 3;
+            board[i+30] = 1;
+        }
+        String boardString = MiniMax.boardString(board);
+        assertEquals(checkBoardString, boardString);
     }
 
 }
