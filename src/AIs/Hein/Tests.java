@@ -28,8 +28,8 @@ public class Tests {
 
     @Test
     void move() {
-        assertDoesNotThrow(() -> AI.move(board2));
-        assertDoesNotThrow(() -> AI.move(board2, (byte) 1));
+        assertDoesNotThrow(() -> AI.move(board2, true));
+        assertDoesNotThrow(() -> AI.move(board2, (byte) 1, true));
     }
 
     @Test
@@ -45,9 +45,6 @@ public class Tests {
     @Test
     void addMoves() {
         // TODO
-        byte[][] test = new byte[1][5];
-        test[0][4] = 1;
-        System.out.println(test.length + " " + test[0].length + " " + test[0][4]);
     }
 
     @Test
