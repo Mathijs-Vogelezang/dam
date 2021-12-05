@@ -28,8 +28,8 @@ public class Tests {
 
     @Test
     void move() {
-        assertDoesNotThrow(() -> AI.move(board2));
-        assertDoesNotThrow(() -> AI.move(board2, (byte) 1));
+        assertDoesNotThrow(() -> AI.move(board2, true));
+        assertDoesNotThrow(() -> AI.move(board2, (byte) 1, true));
     }
 
     @Test
@@ -45,9 +45,6 @@ public class Tests {
     @Test
     void addMoves() {
         // TODO
-        byte[][] test = new byte[1][5];
-        test[0][4] = 1;
-        System.out.println(test.length + " " + test[0].length + " " + test[0][4]);
     }
 
     @Test
@@ -65,12 +62,12 @@ public class Tests {
     @Test
     void evaluate() { // currently disregards position, only considers material values
         assertEquals(MiniMax.evaluate(board), 0);
-        board[0] = 3; // add regular white piece
-        assertEquals(MiniMax.evaluate(board), 1);
+        board[0] = 3; // add regular white piece, so only white pieces left, so maximum score
+        assertEquals(MiniMax.evaluate(board), Integer.MAX_VALUE);
         board[1] = 2; // add black king
         assertEquals(MiniMax.evaluate(board), -3);
         board[1] = 4; // replace black king with white king
-        assertEquals(MiniMax.evaluate(board), 5);
+        assertEquals(MiniMax.evaluate(board), Integer.MAX_VALUE);
         board[49] = 1; // add regular black piece;
         assertEquals(MiniMax.evaluate(board), 4);
     }
